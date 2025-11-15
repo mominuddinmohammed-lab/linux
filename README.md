@@ -1,23 +1,43 @@
-# CMPE 283 – Assignment 2: KVM Exit Statistics
+# CMPE 283 – Assignment 2 : KVM Exit Statistics
 
 ## Contributions
-Individual submission.
+Individual submission by **Mominuddin Mohammed**.
+
+---
 
 ## Steps to Reproduce
-1. Fork torvalds/linux to `mominuddinmohammed-lab/linux`.
-2. On the outer VM (GCE), install deps:
-   `sudo apt-get install -y build-essential libncurses-dev bison flex libssl-dev libelf-dev dwarves dracut-core qemu-kvm git`
-3. Clone and build kernel (6.18-rc5), ensure NVMe/virtio/ext4 as built-in; create initramfs with dracut.
-4. Add exit counters in `arch/x86/kvm/vmx/vmx.c`:
-   - Increment per-type and total.
-   - `printk` one line per non-zero exit type every 10,000 total exits.
-5. Rebuild, install, one-time boot via `grub-reboot`.
-6. Launch inner VM with `-enable-kvm` and observe `dmesg` on the host.
-7. Commit and push changes to branch `cmpe283-exit-stats`.
+1. Forked the Linux repo from [torvalds/linux](https://github.com/torvalds/linux) into my account [`mominuddinmohammed-lab/linux`](https://github.com/mominuddinmohammed-lab/linux).
+2. Built kernel 6.18-rc5 on an outer VM (Ubuntu 22.04 with nested virtualization enabled).
+3. Installed build dependencies (`build-essential`, `libncurses-dev`, `bison`, `flex`, `libssl-dev`, `libelf-dev`, `dwarves`, `dracut-core`, `git`, `qemu-kvm`).
+4. Modified `arch/x86/kvm/vmx/vmx.c` to add exit counters and print statistics every 10 000 exits (omitting zero counts).
+5. Rebuilt and installed the kernel; generated initramfs with `dracut`.
+6. Booted into the custom kernel and verified via `uname -r`.
+7. Launched an inner VM with `qemu-system-x86_64 -enable-kvm` and monitored `dmesg` for KVM Exit Stats output.
+
+---
 
 ## Observations
-- Exits grow roughly linearly during idle/steady workloads; spikes during boot and I/O bursts.
-- A full VM boot typically triggers on the order of tens to hundreds of thousands of exits (depends on image and device init).
-- Most frequent: CPUID, MSR reads/writes, I/O-related exits.
-- Least frequent: HLT (when guest idles with PV timers), rare faults/edge exits.
+- Exit counts increase roughly linearly with time.  
+- Spikes occur during guest boot and I/O operations.  
+- A full VM boot produces tens to hundreds of thousands of exits.  
+- **Most frequent exits:** CPUID, MSR read/write, I/O instructions.  
+- **Least frequent exits:** HLT, external interrupts.
 
+---
+
+## Example Output
+=== KVM Exit Stats (VMX) after 10000 exits ===
+Exit 30: 4123
+Exit 48: 5877
+=== KVM Exit Stats (VMX) after 20000 exits ===
+Exit 30: 8300
+Exit 48: 11700
+
+yaml
+Copy code
+
+---
+
+## Repository Info
+Branch: `cmpe283-exit-stats`  
+Repo: [https://github.com/mominuddinmohammed-lab/linux](https://github.com/mominuddinmohammed-lab/linux)
