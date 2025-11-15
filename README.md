@@ -33,8 +33,6 @@ Exit 48: 5877
 Exit 30: 8300
 Exit 48: 11700
 
-yaml
-Copy code
 
 ---
 
